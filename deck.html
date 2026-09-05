@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Become Rich</title>
+
+<!-- Fonts: Fontshare (display/body) + Google Fonts (mono) -->
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500&f[]=general-sans@600,500,400&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+/* ===========================================
+   FIXED 16:9 STAGE: MANDATORY BASE STYLES
+   Slides are authored at 1920x1080 and scaled as a whole.
+   =========================================== */
+html, body { width:100%; height:100%; margin:0; overflow:hidden; background:var(--stage-bg,#000); }
+.deck-viewport { position:fixed; inset:0; overflow:hidden; background:var(--stage-bg,#000); }
+.deck-stage { position:absolute; left:0; top:0; width:1920px; height:1080px; overflow:hidden; transform-origin:0 0; background:var(--slide-bg,#fff); }
+.slide { position:absolute; inset:0; width:1920px; height:1080px; overflow:hidden; display:block; visibility:hidden; opacity:0; pointer-events:none; background:var(--slide-bg,#fff); }
+.slide.active, .slide.visible { visibility:visible; opacity:1; pointer-events:auto; z-index:1; }
+img, video, canvas, svg { max-width:100%; max-height:100%; }
+.deck-controls { position:fixed; left:50%; bottom:22px; transform:translateX(-50%); z-index:1000; }
+@media print {
+  html, body { width:1920px; height:auto; overflow:visible; background:#fff; }
+  .deck-viewport { position:static; overflow:visible; background:#fff; }
+  .deck-stage { position:static; width:auto; height:auto; transform:none !important; background:none; }
+  .slide { position:relative; display:block !important; visibility:visible !important; opacity:1 !important; pointer-events:auto !important; width:1920px; height:1080px; break-after:page; page-break-after:always; }
+  .slide:last-child { break-after:auto; page-break-after:auto; }
+  .deck-controls { display:none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration:0.01ms !important; transition-duration:0.2s !important; }
+}
+
+/* ===========================================
+   DESIGN TOKENS — locked system (see CLAUDE.md)
+   =========================================== */
+:root{
+  --ink:#1C2644;          /* deep navy canvas */
+  --surface:#232F55;      /* lifted surface   */
+  --surface-2:#161D33;    /* recessed surface */
+  --accent:#C8A870;       /* warm gold        */
+  --accent-dim:#8A6E3E;
+  --text:#E2DCD0;         /* warm off-white   */
+  --muted:#8A96A8;        /* muted slate      */
+  --hair:rgba(226,220,208,.13);
+  --hair-strong:rgba(226,220,208,.26);
+
+  --stage-bg:#141B2E;
+  --slide-bg:#1C2644;
+
+  --font-display:'Cabinet Grotesk','Trebuchet MS',sans-serif;
+  --font-body:'General Sans','Trebuchet MS',sans-serif;
+  --font-mono:'IBM Plex Mono','Courier New',monospace;
+
+  /* motion — exponential ease-out, no bounce */
+  --e:cubic-bezier(0.16,1,0.3,1);
+  --e-soft:cubic-bezier(0.22,0.61,0.36,1);
+
+  --m:140px;              /* page margin      */
+}
+
+/* ===========================================
+   AMBIENT STAGE ATMOSPHERE
+   Layered under every slide: hairline column field,
+   corner vignette, and a fine static grain.
+   =========================================== */
+.atmosphere{ position:absolute; inset:0; pointer-events:none; z-index:0; }
+/* Flat architectural crosshatch. No radial glows, no vignette, no gradient
+   washes anywhere in this deck — they read as AI decoration. */
+.atmosphere .grid{
+  position:absolute; inset:0; opacity:.42;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(200,168,112,.055) 0 1px, transparent 1px 80px),
+    repeating-linear-gradient(0deg,  rgba(200,168,112,.055) 0 1px, transparent 1px 80px);
+}
+.atmosphere .grain{
+  position:absolute; inset:0; opacity:.34; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.32'/%3E%3C/svg%3E");
+}
+
+/* ===========================================
+   SLIDE SHELL + GRID
+   =========================================== */
+.slide{ font-family:var(--font-body); color:var(--text); background:transparent; }
+.deck-stage{ background:var(--slide-bg); }
+.pad{ position:absolute; inset:0; padding:96px var(--m); box-sizing:border-box; z-index:2; }
+/* Slides carrying a right-hand figure clamp their text column so a headline
+   can never run underneath the geometry, whatever the copy length. */
+.slide.has-fig .stack{ max-width:1000px; }
+.stack{ display:flex; flex-direction:column; height:100%; }
+.mid{ justify-content:center; }
+.end{ justify-content:flex-end; }
+
+/* ===========================================
+   TYPOGRAPHY — tracking is size-specific
+   =========================================== */
+.kicker{
+  font-family:var(--font-mono); font-size:19px; font-weight:500;
+  letter-spacing:.24em; text-transform:uppercase; color:var(--accent);
+  display:flex; align-items:center; gap:18px;
+}
+.kicker::after{ content:''; height:1px; width:96px; background:var(--accent); opacity:.55; }
+.kicker.plain::after{ display:none; }
+.kicker.mute{ color:var(--muted); }
+.kicker.mute::after{ background:var(--muted); }
+
+.h1{ font-family:var(--font-display); font-weight:800; font-size:170px; line-height:.92; letter-spacing:-.045em; margin:0; }
+.h2{ font-family:var(--font-display); font-weight:800; font-size:124px; line-height:.95; letter-spacing:-.038em; margin:0; text-wrap:balance; }
+.h3{ font-family:var(--font-display); font-weight:700; font-size:92px;  line-height:1.0;  letter-spacing:-.032em; margin:0; text-wrap:balance; }
+.h4{ font-family:var(--font-display); font-weight:700; font-size:58px;  line-height:1.08; letter-spacing:-.024em; margin:0; }
+.em{ color:var(--accent); }
+
+.lede{ font-size:33px; line-height:1.5; color:var(--muted); max-width:820px; margin:0; font-weight:400; }
+.lede.wide{ max-width:1060px; }
+.lede strong{ color:var(--text); font-weight:500; }
+
+.rule{ height:1px; background:var(--hair); width:100%; }
+.rule.accent{ background:var(--accent); opacity:.6; }
+
+/* ===========================================
+   MOTION SYSTEM
+   Everything animates only while its slide is active,
+   so re-entering a slide replays its choreography.
+   =========================================== */
+.slide [data-a]{ opacity:0; }
+.slide.active [data-a]{ animation-delay:var(--d,0s); animation-fill-mode:both; }
+.slide.active [data-a="rise"]{ animation-name:rise;  animation-duration:.72s;   animation-timing-function:var(--e); }
+.slide.active [data-a="fade"]{ animation-name:fade;  animation-duration:.8s; animation-timing-function:var(--e); }
+.slide.active [data-a="blur"]{ animation-name:blurin;animation-duration:.85s; animation-timing-function:var(--e); }
+.slide.active [data-a="left"]{ animation-name:fromL; animation-duration:.72s;   animation-timing-function:var(--e); }
+.slide.active [data-a="wipe"]{ animation-name:wipe;  animation-duration:.8s; animation-timing-function:var(--e); }
+.slide.active [data-a="grow"]{ animation-name:grow;  animation-duration:.85s; animation-timing-function:var(--e); }
+.slide.active [data-a="pop"] { animation-name:pop;   animation-duration:.62s;  animation-timing-function:var(--e); }
+
+@keyframes rise  { from{opacity:0; transform:translateY(46px)} to{opacity:1; transform:none} }
+@keyframes fade  { from{opacity:0} to{opacity:1} }
+@keyframes blurin{ from{opacity:0; filter:blur(16px); transform:translateY(26px) scale(.985)} to{opacity:1; filter:blur(0); transform:none} }
+@keyframes fromL { from{opacity:0; transform:translateX(-52px)} to{opacity:1; transform:none} }
+@keyframes wipe  { from{opacity:1; clip-path:inset(0 100% 0 0)} to{opacity:1; clip-path:inset(0 0 0 0)} }
+@keyframes grow  { from{opacity:1; transform:scaleY(0)} to{opacity:1; transform:scaleY(1)} }
+@keyframes pop   { from{opacity:0; transform:scale(.9)} to{opacity:1; transform:scale(1)} }
+
+/* SVG line drawing: every animated path carries pathLength="1" */
+.slide .draw{ stroke-dasharray:1; stroke-dashoffset:1; }
+.slide.active .draw{ animation:drawpath 1.05s var(--e) both; animation-delay:var(--d,0s); }
+@keyframes drawpath{ to{ stroke-dashoffset:0 } }
+
+/* Ambient loops, only on the live slide */
+.slide.active .pulse{ animation:pulse 3.4s var(--e-soft) infinite; }
+@keyframes pulse{ 0%,100%{opacity:.35} 50%{opacity:1} }
+.slide.active .float{ animation:floaty 7s var(--e-soft) infinite; }
+@keyframes floaty{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+
+@media (prefers-reduced-motion: reduce){
+  .slide [data-a], .slide.active [data-a]{ opacity:1 !important; animation:none !important; transform:none !important; filter:none !important; clip-path:none !important; }
+  .slide .draw, .slide.active .draw{ stroke-dashoffset:0 !important; animation:none !important; }
+  .slide.active .pulse, .slide.active .float{ animation:none !important; }
+}
+
+/* ===========================================
+   COMPONENTS
+   =========================================== */
+/* figure holder: geometry is positioned, never floated */
+.fig{ position:absolute; z-index:1; }
+
+/* chapter / step divider */
+.divider .num{
+  font-family:var(--font-display); font-weight:800; font-size:330px; line-height:.8;
+  letter-spacing:-.05em; color:rgba(226,220,208,.13);
+}
+.divider .num .fill{ color:var(--accent); }
+.divider .band{ display:flex; align-items:center; gap:60px; }
+
+/* stacked numbered rows (formula, boring-is-strategy) */
+.rows{ display:flex; flex-direction:column; width:1200px; }
+.row{ display:flex; align-items:baseline; gap:38px; padding:22px 0; border-top:1px solid var(--hair); }
+.row:last-child{ border-bottom:1px solid var(--hair); }
+.row .idx{ font-family:var(--font-mono); font-size:19px; color:var(--accent); width:44px; flex:none; letter-spacing:.1em; }
+.row .lab{ font-family:var(--font-display); font-weight:700; font-size:54px; line-height:1.06; letter-spacing:-.022em; }
+.row .say{ font-size:27px; color:var(--muted); }
+
+/* two-column comparison */
+.cmp{ display:grid; grid-template-columns:1fr 1px 1fr; gap:0 76px; width:1360px; }
+.cmp .sep{ background:var(--hair); }
+.cmp h5{ font-family:var(--font-mono); font-size:18px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); margin:0 0 26px; font-weight:400; }
+.cmp .big{ font-family:var(--font-display); font-weight:700; font-size:64px; line-height:1.04; letter-spacing:-.026em; margin:0 0 22px; }
+.cmp p{ font-size:26px; line-height:1.5; color:var(--muted); margin:0; max-width:480px; }
+.cmp .win .big{ color:var(--accent); }
+
+/* struck-through option list (the question, the swap) */
+.opts{ display:flex; flex-direction:column; gap:26px; font-size:76px; }
+.opt{ font-family:var(--font-display); font-weight:700; font-size:inherit; line-height:1.12; letter-spacing:-.028em; color:var(--muted); position:relative; display:inline-block; width:max-content; }
+.opt.dead{ color:rgba(139,144,156,.5); }
+.opt.dead::after{
+  content:''; position:absolute; left:-10px; right:-10px; top:52%; height:3px;
+  background:var(--muted); opacity:.55; transform-origin:left;
+}
+.slide.active .opt.dead::after{ animation:strike .5s var(--e) both; animation-delay:var(--sd,0s); }
+@keyframes strike{ from{transform:scaleX(0)} to{transform:scaleX(1)} }
+.opt.live{ color:var(--text); }
+.opt.live .em{ color:var(--accent); }
+
+/* data figures */
+.stat{ font-family:var(--font-display); font-weight:800; letter-spacing:-.04em; }
+.tabnum{ font-variant-numeric:tabular-nums; }
+
+/* quote */
+.quote{ font-family:var(--font-display); font-weight:700; font-size:104px; line-height:1.08; letter-spacing:-.034em; max-width:1480px; margin:0; text-wrap:balance; }
+
+/* ===========================================
+   DECK CHROME — lives outside the slide design system
+   =========================================== */
+.chrome{ position:fixed; inset:0; pointer-events:none; z-index:900; font-family:var(--font-mono); }
+.chrome .act{
+  position:fixed; left:36px; bottom:30px; font-size:12px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--muted); opacity:.72;
+}
+.chrome .count{
+  position:fixed; right:36px; bottom:30px; font-size:12px; letter-spacing:.2em; color:var(--muted); opacity:.72;
+}
+.chrome .count b{ color:var(--text); font-weight:500; }
+.railwrap{ position:fixed; right:0; top:0; height:100%; width:3px; background:rgba(226,220,208,.07); }
+.rail{ position:absolute; top:0; left:0; width:100%; height:0; background:var(--accent); transition:height .7s var(--e); }
+</style>
+</head>
+<body>
+<div class="deck-viewport" id="viewport">
+<div class="deck-stage" id="stage">
+
+<!-- ambient atmosphere: one layer beneath every slide -->
+<div class="atmosphere">
+  <div class="grid"></div>
+  <div class="grain"></div>
+</div>
+
+<!-- ============================================================
+     ACT I — THE QUESTION
+     ============================================================ -->
+
+<!-- 1. TITLE -->
+<section class="slide" data-act="Act I — The Question">
+  <div class="fig" style="right:0; top:0; width:760px; height:1080px;">
+    <svg viewBox="0 0 760 1080" width="760" height="1080" fill="none">
+      <g stroke="rgba(226,220,208,.10)" stroke-width="1">
+        <path class="draw" pathLength="1" d="M90 0V1080"  style="--d:0.20s"/>
+        <path class="draw" pathLength="1" d="M230 0V1080" style="--d:0.26s"/>
+        <path class="draw" pathLength="1" d="M370 0V1080" style="--d:0.32s"/>
+        <path class="draw" pathLength="1" d="M650 0V1080" style="--d:0.43s"/>
+      </g>
+      <path class="draw" pathLength="1" d="M510 0V1080" stroke="#C8A870" stroke-width="2" style="--d:0.38s"/>
+      <g class="float">
+        <circle cx="510" cy="612" r="7" fill="#C8A870" data-a="pop" style="--d:0.93s"/>
+        <circle cx="510" cy="612" r="26" stroke="#C8A870" stroke-width="1" opacity=".45" class="pulse" data-a="fade"/>
+      </g>
+    </svg>
+  </div>
+  <div class="pad"><div class="stack mid">
+    <div class="kicker" data-a="left" style="--d:0.06s">A talk about how wealth is actually built</div>
+    <h1 class="h1" style="margin-top:44px">
+      <span style="display:block"><span data-a="blur" style="display:inline-block">How to</span></span>
+      <span style="display:block"><span data-a="blur" style="--d:0.09s;display:inline-block">Become</span> <span class="em" data-a="blur" style="--d:0.17s;display:inline-block">Rich</span></span>
+    </h1>
+    <div class="rule" data-a="wipe" style="--d:0.41s; margin:56px 0 40px; width:760px"></div>
+    <p class="lede" data-a="rise" style="--d:0.49s">Not cars. Not houses. Not luxury.<br>The mechanics — and the ten years they take.</p>
+  </div></div>
+</section>
+
+<!-- 2. THE SETUP -->
+<section class="slide has-fig" data-act="Act I — The Question">
+  <div class="pad"><div class="stack mid">
+    <div class="kicker" data-a="left">01 — The experiment</div>
+    <h2 class="h2" data-a="blur" style="--d:0.09s; margin-top:40px; max-width:1180px">Two people.<br>The same salary.</h2>
+    <p class="lede" data-a="rise" style="--d:0.23s; margin-top:44px">Same income. Same opportunities. Even the same amount of time. Nothing separates them on the day the clock starts.</p>
+  </div></div>
+  <div class="fig" style="right:140px; top:296px; width:560px; height:470px;">
+    <svg viewBox="0 0 560 470" width="560" height="470" fill="none">
+      <text x="0"   y="24" fill="#8A96A8" font-family="IBM Plex Mono, monospace" font-size="17" letter-spacing="3">PERSON A</text>
+      <text x="360" y="24" fill="#8A96A8" font-family="IBM Plex Mono, monospace" font-size="17" letter-spacing="3">PERSON B</text>
+      <g data-a="grow" style="--d:.32s; transform-origin:0 100%">
+        <rect x="0" y="84" width="200" height="316" fill="#232F55" stroke="rgba(226,220,208,.22)"/>
+      </g>
+      <g data-a="grow" style="--d:.42s; transform-origin:0 100%">
+        <rect x="360" y="84" width="200" height="316" fill="#232F55" stroke="rgba(226,220,208,.22)"/>
+      </g>
+      <!-- the equals mark: the two are identical, and that is the whole point -->
+      <g stroke="#C8A870" stroke-width="5" data-a="pop" style="--d:.62s">
+        <path d="M248 224h64"/><path d="M248 260h64"/>
+      </g>
+      <path class="draw" pathLength="1" d="M0 84h560" stroke="#C8A870" stroke-width="2" style="--d:.58s"/>
+      <path class="draw" pathLength="1" d="M0 400h560" stroke="#C8A870" stroke-width="2" style="--d:.58s"/>
+      <text x="0" y="440" fill="#C8A870" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="3" data-a="fade" style="--d:.8s">SAME INCOME</text>
+      <text x="188" y="440" fill="#C8A870" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="3" data-a="fade" style="--d:.86s">SAME CHANCES</text>
+      <text x="410" y="440" fill="#C8A870" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="3" data-a="fade" style="--d:.92s">SAME TIME</text>
+    </svg>
+  </div>
+</section>
+
+<!-- 3. THE DIVERGENCE -->
+<section class="slide" data-act="Act I — The Question">
+  <div class="pad"><div class="stack">
+    <div class="kicker" data-a="left" style="margin-top:20px">Ten years later</div>
+    <h2 class="h2" data-a="blur" style="--d:0.09s; margin-top:34px; max-width:1300px">One is free.<br>One is still stuck.</h2>
+  </div></div>
+  <div class="fig" style="left:140px; bottom:112px; width:1640px; height:436px;">
+    <svg viewBox="0 0 1640 436" width="1640" height="436" fill="none">
+      <g stroke="rgba(226,220,208,.08)" stroke-width="1">
+        <path d="M0 380H1640"/><path d="M0 274H1640"/><path d="M0 168H1640"/>
+      </g>
+      <!-- the flatline: label sits BELOW it -->
+      <path class="draw" pathLength="1" d="M0 300C300 297 600 303 900 299S1400 303 1640 300" stroke="#8A96A8" stroke-width="2.5" style="--d:.28s"/>
+      <circle cx="1636" cy="300" r="6" fill="#8A96A8" data-a="pop" style="--d:1.2s"/>
+      <text x="1640" y="338" text-anchor="end" fill="#8A96A8" font-family="IBM Plex Mono, monospace" font-size="17" letter-spacing="3" data-a="fade" style="--d:1.3s">STILL STRUGGLING</text>
+      <!-- the climb: label sits ABOVE its endpoint -->
+      <path class="draw" pathLength="1" d="M0 300C320 293 560 254 800 200S1240 108 1640 72" stroke="#C8A870" stroke-width="4" style="--d:.28s"/>
+      <circle cx="1636" cy="72" r="8" fill="#C8A870" data-a="pop" style="--d:1.2s"/>
+      <text x="1640" y="42" text-anchor="end" fill="#C8A870" font-family="IBM Plex Mono, monospace" font-size="17" letter-spacing="3" data-a="fade" style="--d:1.3s">FINANCIALLY FREE</text>
+      <path class="draw" pathLength="1" d="M0 396v14M816 396v14M1640 396v14" stroke="rgba(226,220,208,.22)" style="--d:1s"/>
+      <text x="0"    y="430" fill="#8A96A8" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="3" data-a="fade" style="--d:1.05s">YEAR 0</text>
+      <text x="816"  y="430" fill="#8A96A8" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="3" data-a="fade" style="--d:1.1s">YEAR 5</text>
+      <text x="1640" y="430" text-anchor="end" fill="#8A96A8" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="3" data-a="fade" style="--d:1.15s">YEAR 10</text>
+    </svg>
+  </div>
+</section>
+
+<!-- 4. THE QUESTION -->
+<section class="slide" data-act="Act I — The Question">
+  <div class="pad"><div class="stack mid">
+    <h3 class="h3" data-a="blur" style="color:var(--muted); max-width:1000px">So what made the difference?</h3>
+    <div class="opts" style="margin-top:70px; font-size:68px">
+      <div class="opt dead" data-a="rise" style="--d:0.20s; --sd:0.64s">Was it luck?</div>
+      <div class="opt dead" data-a="rise" style="--d:0.29s;  --sd:0.78s">Was it intelligence?</div>
+      <div class="opt live" data-a="rise" style="--d:0.43s">Or was it the way they <span class="em">managed their money</span>?</div>
+    </div>
+  </div></div>
+  <div class="fig" style="left:0; top:0; width:60px; height:1080px;">
+    <svg viewBox="0 0 60 1080" width="60" height="1080" fill="none">
+      <path class="draw" pathLength="1" d="M59 640V820" stroke="#C8A870" stroke-width="3" style="--d:0.93s"/>
+    </svg>
+  </div>
+</section>
+
+<!-- 5. THE FRAME -->
+<section class="slide has-fig" data-act="Act I — The Question">
+  <div class="pad"><div class="stack mid">
+    <h3 class="h3" data-a="blur" style="--d:0.09s; margin-top:0; max-width:1120px">Everyone dreams about this.<br>Almost nobody is <span class="em">taught</span> it.</h3>
+    <p class="lede wide" data-a="rise" style="--d:0.26s; margin-top:44px">I don't want to talk about expensive cars, huge houses, or luxury. I want to talk about something far more useful: <strong>how wealth is actually built.</strong></p>
+  </div></div>
+  <div class="fig" style="right:130px; top:250px; width:540px; height:560px;">
+    <svg viewBox="0 0 540 560" width="540" height="560" fill="none" stroke-linecap="square">
+      <g stroke="rgba(226,220,208,.17)" stroke-width="1.5">
+        <path class="draw" pathLength="1" d="M60 400h420v90H60z" style="--d:0.35s"/>
+        <path class="draw" pathLength="1" d="M120 400V300h300v100" style="--d:0.42s"/>
+        <path class="draw" pathLength="1" d="M180 300V196h180v104" style="--d:0.49s"/>
+        <path class="draw" pathLength="1" d="M240 196V120h60v76" style="--d:0.56s"/>
+        <path class="draw" pathLength="1" d="M100 440h60M380 440h60M210 340h120M228 246h84" style="--d:0.64s"/>
+      </g>
+      <path class="draw" pathLength="1" d="M20 540L520 60" stroke="#C8A870" stroke-width="3" style="--d:0.87s"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ============================================================
+     ACT II — WHAT RICH ACTUALLY MEANS
+     ============================================================ -->
+
+<!-- 6. CHAPTER DIVIDER I -->
+<section class="slide divider" data-act="Act II — What Rich Means">
+  <div class="pad"><div class="stack mid">
+    <div class="band">
+      <div class="num" data-a="blur">I</div>
+      <div>
+        <div class="h3" data-a="rise" style="--d:0.26s; margin-top:0">What Rich<br>Actually Means</div>
+      </div>
+    </div>
+    <div class="rule accent" data-a="wipe" style="--d:0.52s; margin-top:64px; width:1100px"></div>
+  </div></div>
+</section>
+
+<!-- 7. THE DEFINITION -->
+<section class="slide" data-act="Act II — What Rich Means">
+  <div class="pad"><div class="stack">
+    <h2 class="h2" data-a="blur" style="--d:0.09s; margin-top:0">Rich isn't a number.</h2>
+    <p class="lede wide" data-a="rise" style="--d:0.23s; margin-top:34px">Most people think rich means having a lot of money. Real wealth is what money buys back: <strong>control over your own decisions.</strong></p>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:56px; margin-top:64px; width:1440px">
+      <div data-a="rise" style="--d:.40s">
+        <svg viewBox="0 0 110 120" width="110" height="120" fill="none">
+          <!-- freedom: a bracket that opens outward -->
+          <path class="draw" pathLength="1" d="M74 4H16v112h58" stroke="rgba(226,220,208,.34)" stroke-width="2.5" style="--d:.56s"/>
+          <path class="draw" pathLength="1" d="M74 34h32M74 86h32" stroke="rgba(226,220,208,.34)" stroke-width="2.5" style="--d:.68s"/>
+        </svg>
+        <div class="h4" style="margin-top:24px">Freedom</div>
+      </div>
+      <div data-a="rise" style="--d:.50s">
+        <svg viewBox="0 0 110 120" width="110" height="120" fill="none">
+          <!-- security: a closed box, held -->
+          <path class="draw" pathLength="1" d="M16 4h78v112H16z" stroke="rgba(226,220,208,.34)" stroke-width="2.5" style="--d:.66s"/>
+          <rect x="42" y="42" width="26" height="36" fill="#C8A870" opacity=".85" data-a="pop" style="--d:.84s"/>
+        </svg>
+        <div class="h4" style="margin-top:24px">Security</div>
+      </div>
+      <div data-a="rise" style="--d:.60s">
+        <svg viewBox="0 0 110 120" width="110" height="120" fill="none" stroke-linecap="round">
+          <!-- choices: one path forking into three -->
+          <path class="draw" pathLength="1" d="M8 60h34" stroke="#C8A870" stroke-width="3" style="--d:.76s"/>
+          <path class="draw" pathLength="1" d="M42 60C68 60 74 18 102 12" stroke="#C8A870" stroke-width="2.5" style="--d:.86s"/>
+          <path class="draw" pathLength="1" d="M42 60h60" stroke="#C8A870" stroke-width="2.5" style="--d:.92s"/>
+          <path class="draw" pathLength="1" d="M42 60c26 0 32 42 60 48" stroke="#C8A870" stroke-width="2.5" style="--d:.98s"/>
+        </svg>
+        <div class="h4 em" style="margin-top:24px">Choices</div>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- 8. WHAT IT FEELS LIKE -->
+<section class="slide has-fig" data-act="Act II — What Rich Means">
+  <div class="pad"><div class="stack mid">
+    <div class="kicker" data-a="left">Financial freedom</div>
+    <h3 class="h3" data-a="blur" style="--d:0.09s; margin-top:36px; max-width:1050px">You stop saying yes<br>because you <span class="em">have to</span>.</h3>
+    <p class="lede" data-a="rise" style="--d:0.26s; margin-top:42px">Imagine waking up and realising you don't have to accept every job, every opportunity, every situation just because you need the money.</p>
+  </div></div>
+  <div class="fig" style="right:150px; top:190px; width:600px; height:700px;">
+    <svg viewBox="0 0 600 700" width="600" height="700" fill="none">
+      <g stroke="rgba(226,220,208,.16)" stroke-width="1.5">
+        <rect class="draw" pathLength="1" x="20"  y="20"  width="560" height="660" style="--d:0.29s"/>
+        <rect class="draw" pathLength="1" x="90"  y="80"  width="420" height="540" style="--d:0.39s"/>
+        <rect class="draw" pathLength="1" x="160" y="140" width="280" height="420" style="--d:0.50s"/>
+      </g>
+      <rect class="draw" pathLength="1" x="230" y="200" width="140" height="300" stroke="#C8A870" stroke-width="2.5" style="--d:0.60s"/>
+      <rect x="230" y="200" width="140" height="300" fill="#C8A870" opacity=".08" data-a="fade" style="--d:0.99s"/>
+      <circle cx="352" cy="356" r="5" fill="#C8A870" data-a="pop" style="--d:1.10s"/>
+    </svg>
+  </div>
+</section>
+
+<!-- 9. HOW IT ARRIVES -->
+<section class="slide" data-act="Act II — What Rich Means">
+  <div class="pad"><div class="stack">
+    <h2 class="h2" data-a="blur" style="--d:0.09s; margin-top:0">Not overnight.<br>Never overnight.</h2>
+    <p class="lede wide" data-a="rise" style="--d:0.23s; margin-top:38px">Financial freedom is built through <strong>small decisions repeated over a long period of time.</strong> Each one is forgettable. The sequence is not.</p>
+  </div></div>
+  <div class="fig" style="left:140px; bottom:130px; width:1640px; height:170px;">
+    <svg viewBox="0 0 1640 170" width="1640" height="170" fill="none">
+      <g id="ticks9" stroke="rgba(226,220,208,.22)" stroke-width="2" data-a="fade" style="--d:0.41s"></g>
+      <path class="draw" pathLength="1" d="M0 140H1640" stroke="rgba(226,220,208,.16)" stroke-width="1" style="--d:0.35s"/>
+      <text x="0" y="168" fill="#8A96A8" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="3" data-a="fade" style="--d:0.93s">ONE DECISION</text>
+      <text x="1372" y="168" fill="#C8A870" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="3" data-a="fade" style="--d:0.93s">TEN YEARS OF THEM</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ============================================================
+     ACT III — THE FIVE STEPS
+     ============================================================ -->
+
+<!-- 10. STEP DIVIDER 01 -->
+<section class="slide divider" data-act="Step 01 — Earn More">
+  <div class="pad"><div class="stack mid">
+    <div class="band">
+      <div class="num" data-a="blur"><span class="fill">0</span>1</div>
+      <div>
+        <div class="h3" data-a="rise" style="--d:0.26s; margin-top:0">Learn How<br>to Earn More</div>
+      </div>
+    </div>
+    <p class="lede" data-a="rise" style="--d:0.46s; margin-top:52px">Increase your ability to earn before you optimise anything else.</p>
+  </div></div>
+</section>
+
+<!-- 11. HARDER VS VALUABLE -->
+<section class="slide" data-act="Step 01 — Earn More">
+  <div class="pad"><div class="stack">
+    <h3 class="h3" data-a="blur" style="--d:0.09s; margin-top:0; max-width:1400px">Working harder pays.<br>Becoming <span class="em">valuable</span> compounds.</h3>
+    <div class="cmp" style="margin-top:62px">
+      <div data-a="rise" style="--d:0.29s">
+        <h5>Work harder</h5>
+        <p class="big" style="color:var(--muted)">You may earn more.</p>
+        <p>Linear. Paid by the hour, capped by the hours you have.</p>
+      </div>
+      <div class="sep" data-a="grow" style="--d:0.35s; transform-origin:50% 0"></div>
+      <div class="win" data-a="rise" style="--d:0.41s">
+        <h5>Become more valuable</h5>
+        <p class="big">You create bigger opportunities.</p>
+        <p>Uncapped. The same hour is simply worth more of them.</p>
+      </div>
+    </div>
+  </div></div>
+  <div class="fig" style="right:140px; bottom:96px; width:520px; height:250px;">
+    <svg viewBox="0 0 520 250" width="520" height="250" fill="none">
+      <path class="draw" pathLength="1" d="M0 240H520" stroke="rgba(226,220,208,.12)" style="--d:0.52s"/>
+      <path class="draw" pathLength="1" d="M0 240L520 168" stroke="#8A96A8" stroke-width="2" style="--d:0.64s"/>
+      <path class="draw" pathLength="1" d="M0 240C180 234 330 190 420 118S500 30 520 10" stroke="#C8A870" stroke-width="3.5" style="--d:0.64s"/>
+    </svg>
+  </div>
+</section>
+
+<!-- 12. THE SKILLS -->
+<section class="slide has-fig" data-act="Step 01 — Earn More">
+  <div class="pad"><div class="stack mid">
+    <h3 class="h3" data-a="blur" style="--d:0.09s; margin-top:0; font-size:76px; max-width:1180px">Five skills that create opportunities.</h3>
+    <div style="display:flex; gap:0; margin-top:56px; width:1020px; flex-direction:column">
+      <div class="row" data-a="left" style="--d:0.29s"><span class="idx">01</span><span class="lab">Communication</span></div>
+      <div class="row" data-a="left" style="--d:0.35s"><span class="idx">02</span><span class="lab">Technology</span></div>
+      <div class="row" data-a="left" style="--d:0.41s"><span class="idx">03</span><span class="lab">Leadership</span></div>
+      <div class="row" data-a="left" style="--d:0.46s"><span class="idx">04</span><span class="lab">Sales</span></div>
+      <div class="row" data-a="left" style="--d:0.52s"><span class="idx">05</span><span class="lab">Problem-solving</span></div>
+    </div>
+    <p class="lede" data-a="rise" style="--d:0.64s; margin-top:36px">Investing in yourself is one of the best investments you can make.</p>
+  </div></div>
+  <div class="fig" style="right:120px; top:180px; width:560px; height:720px;">
+    <svg viewBox="0 0 560 720" width="560" height="720" fill="none" stroke-linecap="round">
+      <g stroke="rgba(226,220,208,.20)" stroke-width="1.5">
+        <path class="draw" pathLength="1" d="M40 360h130" style="--d:0.35s"/>
+        <path class="draw" pathLength="1" d="M170 360V96h110"  style="--d:0.42s"/>
+        <path class="draw" pathLength="1" d="M170 360V228h110" style="--d:0.46s"/>
+        <path class="draw" pathLength="1" d="M170 360h110"     style="--d:0.51s"/>
+        <path class="draw" pathLength="1" d="M170 360v132h110" style="--d:0.56s"/>
+        <path class="draw" pathLength="1" d="M170 360v264h110" style="--d:0.60s"/>
+        <path class="draw" pathLength="1" d="M280 96h90m-90 132h130m-130 132h70m-70 132h150m-150 132h100" style="--d:0.75s"/>
+      </g>
+      <circle cx="40" cy="360" r="8" fill="#C8A870" data-a="pop" style="--d:0.29s"/>
+      <g fill="#C8A870" opacity=".85">
+        <circle cx="280" cy="96"  r="5" data-a="pop" style="--d:0.67s"/>
+        <circle cx="280" cy="228" r="5" data-a="pop" style="--d:0.71s"/>
+        <circle cx="280" cy="360" r="5" data-a="pop" style="--d:0.75s"/>
+        <circle cx="280" cy="492" r="5" data-a="pop" style="--d:0.79s"/>
+        <circle cx="280" cy="624" r="5" data-a="pop" style="--d:0.83s"/>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<!-- 13. THE ASSET NOBODY CAN TAKE -->
+<section class="slide has-fig" data-act="Step 01 — Earn More">
+  <div class="pad"><div class="stack mid">
+    <h3 class="h3" data-a="blur" style="--d:0.09s; margin-top:0; max-width:1120px">Your skills are the one asset <span class="em">nobody can take</span> from you.</h3>
+    <p class="lede wide" data-a="rise" style="--d:0.26s; margin-top:44px">Your knowledge becomes an asset. Your skills create income. Unlike money, they can't be spent, lost, or taken.</p>
+  </div></div>
+  <div class="fig" style="right:170px; top:250px; width:520px; height:520px;">
+    <svg viewBox="0 0 520 520" width="520" height="520" fill="none">
+      <g stroke="rgba(226,220,208,.15)" stroke-width="1.5">
+        <rect class="draw" pathLength="1" x="10"  y="10"  width="500" height="500" style="--d:0.29s"/>
+        <rect class="draw" pathLength="1" x="70"  y="70"  width="380" height="380" style="--d:0.38s"/>
+        <rect class="draw" pathLength="1" x="130" y="130" width="260" height="260" style="--d:0.46s"/>
+      </g>
+      <rect class="draw" pathLength="1" x="196" y="196" width="128" height="128" stroke="#C8A870" stroke-width="2.5" style="--d:0.55s"/>
+      <rect x="196" y="196" width="128" height="128" fill="#C8A870" opacity=".14" class="pulse" data-a="fade" style="--d:0.93s"/>
+      <path class="draw" pathLength="1" d="M0 260h130M390 260h130M260 0v130M260 390v130" stroke="rgba(226,220,208,.10)" style="--d:0.70s"/>
+    </svg>
+  </div>
+</section>
+
+<!-- 14. STEP DIVIDER 02 -->
+<section class="slide divider" data-act="Step 02 — Keep More">
+  <div class="pad"><div class="stack mid">
+    <div class="band">
+      <div class="num" data-a="blur"><span class="fill">0</span>2</div>
+      <div>
+        <div class="h3" data-a="rise" style="--d:0.26s; margin-top:0">Don't Let Your<br>Money Control You</div>
+      </div>
+    </div>
+    <p class="lede" data-a="rise" style="--d:0.46s; margin-top:52px">Earning is only half of the story.</p>
+  </div></div>
+</section>
+
+<!-- 15. THE TRAP -->
+<section class="slide has-fig" data-act="Step 02 — Keep More">
+  <div class="pad"><div class="stack mid">
+    <h2 class="h2" data-a="blur" style="max-width:1000px; font-size:106px">You can earn a lot<br>and still stay <span class="em">broke</span>.</h2>
+    <p class="lede" data-a="rise" style="--d:0.23s; margin-top:44px">How much you keep is just as important as how much you earn. Income is the input. Nothing more.</p>
+  </div></div>
+  <div class="fig" style="right:140px; top:270px; width:560px; height:540px;">
+    <svg viewBox="0 0 560 540" width="560" height="540" fill="none">
+      <rect x="130" y="60" width="300" height="400" fill="#232F55" stroke="rgba(226,220,208,.20)" data-a="fade" style="--d:0.23s"/>
+      <rect x="130" y="300" width="300" height="160" fill="#C8A870" opacity=".18" data-a="grow" style="--d:0.52s; transform-origin:50% 100%"/>
+      <path class="draw" pathLength="1" d="M280 0v60" stroke="#C8A870" stroke-width="4" style="--d:0.35s"/>
+      <path class="draw" pathLength="1" d="M280 460v80" stroke="#8A96A8" stroke-width="11" style="--d:0.64s"/>
+      <text x="300" y="34" fill="#C8A870" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="3" data-a="fade" style="--d:0.81s">EARNED</text>
+      <text x="300" y="524" fill="#8A96A8" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="3" data-a="fade" style="--d:0.87s">SPENT</text>
+      <text x="8" y="392" fill="#8A96A8" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="3" data-a="fade" style="--d:0.93s">KEPT</text>
+    </svg>
+  </div>
+</section>
+
+<!-- 16. THE ARITHMETIC — the deck's data slide -->
+<section class="slide" data-act="Step 02 — Keep More">
+  <div class="pad"><div class="stack">
+    <div class="kicker" data-a="left" style="margin-top:6px">Do the arithmetic</div>
+    <h3 class="h3" data-a="blur" style="--d:0.09s; margin-top:26px">Who is building wealth?</h3>
+
+    <div style="display:grid; grid-template-columns:1fr 1px 1fr; gap:0 90px; margin-top:56px; width:1500px">
+      <!-- Person A -->
+      <div data-a="rise" style="--d:0.26s">
+        <h5 style="font-family:var(--font-mono); font-size:18px; letter-spacing:.22em; color:var(--muted); margin:0 0 30px; font-weight:400">PERSON A</h5>
+        <div style="display:flex; gap:56px; align-items:flex-end">
+          <div><div style="font-size:22px; color:var(--muted); font-family:var(--font-mono); letter-spacing:.12em">EARNS</div><div class="stat tabnum" style="font-size:82px; margin-top:8px">€3,000</div></div>
+          <div><div style="font-size:22px; color:var(--muted); font-family:var(--font-mono); letter-spacing:.12em">SPENDS</div><div class="stat tabnum" style="font-size:82px; margin-top:8px; color:var(--muted)">€3,200</div></div>
+        </div>
+        <div class="rule" data-a="wipe" style="--d:0.64s; margin:34px 0 26px"></div>
+        <div data-a="rise" style="--d:0.72s; display:flex; align-items:baseline; gap:20px">
+          <span style="font-family:var(--font-mono); font-size:18px; letter-spacing:.2em; color:var(--muted)">EACH MONTH</span>
+          <span class="stat tabnum" style="font-size:66px; color:var(--muted)">−€200</span>
+        </div>
+      </div>
+      <div class="sep" data-a="grow" style="--d:0.35s; background:var(--hair); transform-origin:50% 0"></div>
+      <!-- Person B -->
+      <div data-a="rise" style="--d:0.38s">
+        <h5 style="font-family:var(--font-mono); font-size:18px; letter-spacing:.22em; color:var(--accent); margin:0 0 30px; font-weight:400">PERSON B</h5>
+        <div style="display:flex; gap:56px; align-items:flex-end">
+          <div><div style="font-size:22px; color:var(--muted); font-family:var(--font-mono); letter-spacing:.12em">EARNS</div><div class="stat tabnum" style="font-size:82px; margin-top:8px">€2,000</div></div>
+          <div><div style="font-size:22px; color:var(--muted); font-family:var(--font-mono); letter-spacing:.12em">SPENDS</div><div class="stat tabnum" style="font-size:82px; margin-top:8px; color:var(--muted)">€1,500</div></div>
+        </div>
+        <div class="rule accent" data-a="wipe" style="--d:0.72s; margin:34px 0 26px"></div>
+        <div style="display:flex; align-items:baseline; gap:20px">
+          <span style="font-family:var(--font-mono); font-size:18px; letter-spacing:.2em; color:var(--muted)">EACH MONTH</span>
+          <span class="stat tabnum em" style="font-size:66px">+€500</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="lede wide" data-a="rise" style="--d:0.93s; margin-top:54px"><strong>The one who earns less is the one building wealth.</strong> Not because of income — because of the gap.</p>
+  </div></div>
+</section>
+
+<!-- 17. LOOKING VS BEING -->
+<section class="slide" data-act="Step 02 — Keep More">
+  <div class="pad"><div class="stack mid">
+    <h2 class="h2" data-a="blur" style="max-width:1500px; font-size:112px">Looking rich and being rich<br>are not the <span class="em">same thing</span>.</h2>
+    <p class="lede wide" data-a="rise" style="--d:0.26s; margin-top:46px">Some things you buy because you need them. Some you buy to impress people who aren't paying attention. Learn which is which.</p>
+  </div></div>
+  <div class="fig" style="right:140px; bottom:104px; width:470px; height:300px;">
+    <svg viewBox="0 0 470 300" width="470" height="300" fill="none">
+      <rect class="draw" pathLength="1" x="10" y="10" width="190" height="250" stroke="rgba(226,220,208,.28)" stroke-width="2" style="--d:0.35s"/>
+      <rect class="draw" pathLength="1" x="270" y="10" width="190" height="250" stroke="#C8A870" stroke-width="2" style="--d:0.43s"/>
+      <rect x="270" y="10" width="190" height="250" fill="#C8A870" opacity=".22" data-a="grow" style="--d:0.75s; transform-origin:50% 100%"/>
+      <text x="10"  y="292" fill="#8A96A8" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="3" data-a="fade" style="--d:0.93s">LOOKING</text>
+      <text x="270" y="292" fill="#C8A870" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="3" data-a="fade" style="--d:0.99s">BEING</text>
+    </svg>
+  </div>
+</section>
+
+<!-- 18. STEP DIVIDER 03 -->
+<section class="slide divider" data-act="Step 03 — Grow It">
+  <div class="pad"><div class="stack mid">
+    <div class="band">
+      <div class="num" data-a="blur"><span class="fill">0</span>3</div>
+      <div>
+        <div class="h3" data-a="rise" style="--d:0.26s; margin-top:0">Make Your Money<br>Work for You</div>
+      </div>
+    </div>
+    <p class="lede" data-a="rise" style="--d:0.46s; margin-top:52px">Saving is necessary. It is not sufficient.</p>
+  </div></div>
+</section>
+
+<!-- 19. COMPOUNDING -->
+<section class="slide" data-act="Step 03 — Grow It">
+  <div class="pad"><div class="stack">
+    <div class="kicker" data-a="left" style="margin-top:14px">Compound growth</div>
+    <h3 class="h3" data-a="blur" style="--d:0.09s; margin-top:28px; max-width:1000px">Returns that make their own returns.</h3>
+    <p class="lede wide" data-a="rise" style="--d:0.23s; margin-top:34px">Your money generates returns, and those returns generate more returns. It's like planting a tree: <strong>slow at first, then much bigger</strong> — if you give it enough time.</p>
+  </div></div>
+  <div class="fig" style="left:140px; bottom:100px; width:1640px; height:400px;">
+    <svg viewBox="0 0 1640 400" width="1640" height="400" fill="none">
+      <path d="M0 380C420 372 760 330 1040 250S1480 70 1640 20L1640 380Z" fill="#C8A870" opacity=".07" data-a="fade" style="--d:1.10s"/>
+      <path class="draw" pathLength="1" d="M0 380H1640" stroke="rgba(226,220,208,.12)" style="--d:0.29s"/>
+      <path class="draw" pathLength="1" d="M0 380L1640 214" stroke="#8A96A8" stroke-width="2" stroke-dasharray="0" style="--d:0.46s"/>
+      <path class="draw" pathLength="1" d="M0 380C420 372 760 330 1040 250S1480 70 1640 20" stroke="#C8A870" stroke-width="4" style="--d:0.46s"/>
+      <text x="1300" y="252" fill="#8A96A8" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="3" data-a="fade" style="--d:1.22s">SAVING ALONE</text>
+      <text x="1360" y="60" fill="#C8A870" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="3" data-a="fade" style="--d:1.28s">COMPOUNDING</text>
+      <text x="0" y="398" fill="#8A96A8" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="3" data-a="fade" style="--d:1.16s">TIME</text>
+    </svg>
+  </div>
+</section>
+
+<!-- 20. THE HONEST PART -->
+<section class="slide" data-act="Step 03 — Grow It">
+  <div class="pad"><div class="stack">
+    <div class="kicker mute" data-a="left" style="margin-top:14px">The part most decks leave out</div>
+    <h3 class="h3" data-a="blur" style="--d:0.09s; margin-top:28px; max-width:1300px">Investing is not magic.<br>It is not guaranteed.</h3>
+    <p class="lede wide" data-a="rise" style="--d:0.23s; margin-top:34px">You can lose money — especially investing in things you don't understand. The goal isn't to get rich quickly. <strong>The goal is informed decisions, repeated, for a long time.</strong></p>
+  </div></div>
+  <div class="fig" style="left:140px; bottom:100px; width:1640px; height:400px;">
+    <svg viewBox="0 0 1640 400" width="1640" height="400" fill="none">
+      <path class="draw" pathLength="1" d="M0 380H1640" stroke="rgba(226,220,208,.12)" style="--d:0.29s"/>
+      <path class="draw" pathLength="1" d="M0 380C420 372 760 330 1040 250S1480 70 1640 20" stroke="rgba(200,168,112,.4)" stroke-width="2" stroke-dasharray=".012 .012" style="--d:0.41s"/>
+      <path class="draw" pathLength="1" d="M0 378 60 358 110 372 180 330 240 352 300 318 360 344 420 296 480 322 540 268 600 300 660 236 720 276 780 214 840 262 900 186 960 240 1020 150 1080 208 1140 118 1200 176 1260 92 1320 148 1380 62 1440 118 1500 44 1560 88 1640 22" stroke="#C8A870" stroke-width="3" stroke-linejoin="round" style="--d:0.52s"/>
+      <text x="1240" y="330" fill="#8A96A8" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="3" data-a="fade" style="--d:1.39s">THE REAL PATH IS NEVER SMOOTH</text>
+    </svg>
+  </div>
+</section>
+
+<!-- 21. STEP DIVIDER 04 -->
+<section class="slide divider" data-act="Step 04 — Diversify">
+  <div class="pad"><div class="stack mid">
+    <div class="band">
+      <div class="num" data-a="blur"><span class="fill">0</span>4</div>
+      <div>
+        <div class="h3" data-a="rise" style="--d:0.26s; margin-top:0">Build More Than<br>One Income Stream</div>
+      </div>
+    </div>
+    <p class="lede" data-a="rise" style="--d:0.46s; margin-top:52px">Never let one source decide your whole outcome.</p>
+  </div></div>
+</section>
+
+<!-- 22. THE STREAMS -->
+<section class="slide has-fig" data-act="Step 04 — Diversify">
+  <div class="pad"><div class="stack mid">
+    <h3 class="h3" data-a="blur" style="max-width:900px">If one stops,<br>the others <span class="em">hold</span>.</h3>
+    <div class="rows" style="width:880px; margin-top:52px">
+      <div class="row" data-a="left" style="--d:0.26s"><span class="idx">01</span><span class="lab" style="font-size:46px">A full-time job</span></div>
+      <div class="row" data-a="left" style="--d:0.32s"><span class="idx">02</span><span class="lab" style="font-size:44px">Freelance work</span></div>
+      <div class="row" data-a="left" style="--d:0.38s"><span class="idx">03</span><span class="lab" style="font-size:44px">A small business</span></div>
+      <div class="row" data-a="left" style="--d:0.43s"><span class="idx">04</span><span class="lab" style="font-size:44px">Digital products</span></div>
+      <div class="row" data-a="left" style="--d:0.49s"><span class="idx">05</span><span class="lab" style="font-size:44px">Long-term investing</span></div>
+    </div>
+    <p class="lede" data-a="rise" style="--d:0.61s; margin-top:42px">The point isn't to work every hour of the day. The point is to create more opportunities.</p>
+  </div></div>
+  <div class="fig" style="right:110px; top:180px; width:640px; height:720px;">
+    <svg viewBox="0 0 640 720" width="640" height="720" fill="none" stroke-linecap="round">
+      <path class="draw" pathLength="1" d="M0 360h150" stroke="#C8A870" stroke-width="14" style="--d:0.29s"/>
+      <g stroke="#C8A870" opacity=".9">
+        <path class="draw" pathLength="1" d="M150 360C260 360 300 200 420 120s140-40 220-60" stroke-width="6"   style="--d:0.43s"/>
+        <path class="draw" pathLength="1" d="M150 360C260 360 300 280 420 250s150-10 220-20"  stroke-width="4.5" style="--d:0.49s"/>
+        <path class="draw" pathLength="1" d="M150 360h490"                                     stroke-width="3.5" style="--d:0.55s"/>
+        <path class="draw" pathLength="1" d="M150 360c110 0 150 80 270 110s150 10 220 20"     stroke-width="2.5" style="--d:0.61s"/>
+        <path class="draw" pathLength="1" d="M150 360c110 0 150 160 270 240s140 40 220 60"    stroke-width="2"   style="--d:0.67s"/>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<!-- 23. STEP DIVIDER 05 -->
+<section class="slide divider" data-act="Step 05 — Be Patient">
+  <div class="pad"><div class="stack mid">
+    <div class="band">
+      <div class="num" data-a="blur"><span class="fill">0</span>5</div>
+      <div>
+        <div class="h3" data-a="rise" style="--d:0.26s; margin-top:0">Think<br>Long-Term</div>
+      </div>
+    </div>
+    <p class="lede" data-a="rise" style="--d:0.46s; margin-top:52px">The part almost everyone underestimates.</p>
+  </div></div>
+</section>
+
+<!-- 24. BORING IS THE STRATEGY -->
+<section class="slide" data-act="Step 05 — Be Patient">
+  <div class="pad"><div class="stack">
+    <h2 class="h2" data-a="blur" style="--d:0.09s; margin-top:0">Real wealth is <span class="em">boring</span>.</h2>
+    <div class="rows" style="width:1500px; margin-top:48px">
+      <div class="row" data-a="left" style="--d:0.26s"><span class="idx">01</span><span class="lab">Save regularly</span></div>
+      <div class="row" data-a="left" style="--d:0.32s"><span class="idx">02</span><span class="lab">Learn continuously</span></div>
+      <div class="row" data-a="left" style="--d:0.38s"><span class="idx">03</span><span class="lab">Invest carefully</span></div>
+      <div class="row" data-a="left" style="--d:0.43s"><span class="idx">04</span><span class="lab">Avoid unnecessary debt</span></div>
+      <div class="row" data-a="left" style="--d:0.49s"><span class="idx">05</span><span class="lab">Decide well when <span class="em">nobody is watching</span></span></div>
+    </div>
+    <p class="lede wide" data-a="rise" style="--d:0.64s; margin-top:34px">We live in a world that wants fast money, fast success, fast progress. Wealth does not work that way.</p>
+  </div></div>
+</section>
+
+<!-- 25. THE REAL DIFFERENCE -->
+<section class="slide" data-act="Step 05 — Be Patient">
+  <div class="pad"><div class="stack mid">
+    <h2 class="h2" data-a="blur" style="max-width:1300px">Not one big decision.<br><span class="em">Thousands</span> of small ones.</h2>
+    <p class="lede wide" data-a="rise" style="--d:0.26s; margin-top:44px">The difference between the person who becomes wealthy and the person who doesn't is rarely one huge move. It's thousands of small decisions made over many years.</p>
+  </div></div>
+  <div class="fig" style="left:140px; bottom:88px; width:1640px; height:220px;">
+    <svg viewBox="0 0 1640 220" width="1640" height="220" fill="none">
+      <g id="field25"></g>
+      <path class="draw" pathLength="1" d="M0 196C500 190 1000 140 1640 24" stroke="#C8A870" stroke-width="3" style="--d:0.93s"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ============================================================
+     ACT IV — FAILURE
+     ============================================================ -->
+
+<!-- 26. FAILURE IS TUITION -->
+<section class="slide has-fig" data-act="Act IV — Failure">
+  <div class="pad"><div class="stack mid">
+    <div class="kicker" data-a="left">Learn from failure</div>
+    <h3 class="h3" data-a="blur" style="--d:0.09s; margin-top:32px">Change the question.</h3>
+    <div class="opts" style="margin-top:58px; font-size:62px">
+      <div class="opt dead" data-a="rise" style="--d:0.29s; --sd:0.70s">&ldquo;Why did I fail?&rdquo;</div>
+      <div class="opt live" data-a="rise" style="--d:0.52s">&ldquo;What can this failure <span class="em">teach me</span>?&rdquo;</div>
+    </div>
+    <p class="lede wide" data-a="rise" style="--d:0.87s; margin-top:52px">You'll make a bad investment. Start something that fails. Waste money. Successful people are not people who never make mistakes — they're people who learn from them and keep moving.</p>
+  </div></div>
+  <div class="fig" style="right:150px; top:270px; width:480px; height:480px;">
+    <svg viewBox="0 0 480 480" width="480" height="480" fill="none">
+      <path class="draw" pathLength="1" d="M240 40a200 200 0 0 1 0 400" stroke="rgba(226,220,208,.24)" stroke-width="2" style="--d:0.35s"/>
+      <path class="draw" pathLength="1" d="M240 440a200 200 0 0 1 0-400" stroke="rgba(226,220,208,.24)" stroke-width="2" style="--d:0.43s"/>
+      <path class="draw" pathLength="1" d="M240 40c-18 74 22 96 4 156s-40 62-16 130 26 60 12 114" stroke="#C8A870" stroke-width="3" style="--d:0.70s"/>
+      <g fill="#C8A870" class="pulse" data-a="fade" style="--d:1.22s">
+        <circle cx="244" cy="196" r="4"/><circle cx="228" cy="326" r="4"/><circle cx="252" cy="420" r="4"/>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<!-- ============================================================
+     ACT V — THE SYSTEM
+     ============================================================ -->
+
+<!-- 27. THE FORMULA -->
+<section class="slide" data-act="Act V — The System">
+  <div class="pad"><div class="stack">
+    <h3 class="h3" data-a="blur" style="--d:0.09s; margin-top:0">There is no trick. There is a system.</h3>
+    <div class="rows" style="width:1560px; margin-top:44px">
+      <div class="row" data-a="left" style="--d:0.26s"><span class="idx">01</span><span class="lab" style="font-size:48px">Earn more</span><span class="say">develop valuable skills</span></div>
+      <div class="row" data-a="left" style="--d:0.32s"><span class="idx">02</span><span class="lab" style="font-size:48px">Keep more</span><span class="say">control your spending</span></div>
+      <div class="row" data-a="left" style="--d:0.38s"><span class="idx">03</span><span class="lab" style="font-size:48px">Grow it</span><span class="say">invest wisely</span></div>
+      <div class="row" data-a="left" style="--d:0.43s"><span class="idx">04</span><span class="lab" style="font-size:48px">Diversify</span><span class="say">build more than one source</span></div>
+      <div class="row" data-a="left" style="--d:0.49s"><span class="idx">05</span><span class="lab" style="font-size:48px">Be patient</span><span class="say">give the plan time to work</span></div>
+    </div>
+    <p class="lede wide" data-a="rise" style="--d:0.67s; margin-top:32px">You don't need to be rich tomorrow. You need to make <strong>better financial decisions than you made yesterday.</strong></p>
+  </div></div>
+  <div class="fig" style="right:70px; top:250px; width:60px; height:560px;">
+    <svg viewBox="0 0 60 560" width="60" height="560" fill="none">
+      <path class="draw" pathLength="1" d="M30 10V550" stroke="rgba(226,220,208,.16)" stroke-width="1.5" style="--d:0.23s"/>
+      <g fill="#C8A870">
+        <circle cx="30" cy="46"  r="6" data-a="pop" style="--d:0.29s"/>
+        <circle cx="30" cy="172" r="6" data-a="pop" style="--d:0.35s"/>
+        <circle cx="30" cy="298" r="6" data-a="pop" style="--d:0.41s"/>
+        <circle cx="30" cy="424" r="6" data-a="pop" style="--d:0.46s"/>
+        <circle cx="30" cy="530" r="6" data-a="pop" style="--d:0.52s"/>
+      </g>
+    </svg>
+  </div>
+</section>
+
+<!-- ============================================================
+     ACT VI — CLOSE
+     ============================================================ -->
+
+<!-- 28. FINAL THOUGHT -->
+<section class="slide" data-act="Act VI — Close">
+  <div class="fig" style="left:0; bottom:0; width:1920px; height:250px;">
+    <svg viewBox="0 0 1920 250" width="1920" height="250" fill="none">
+      <g id="burst28" stroke="#C8A870"></g>
+      <path class="draw" pathLength="1" d="M0 230H1920" stroke="rgba(226,220,208,.20)" stroke-width="1.5" style="--d:0.23s"/>
+      <circle cx="960" cy="230" r="10" fill="#C8A870" data-a="pop" style="--d:1.10s"/>
+      <circle cx="960" cy="230" r="46" stroke="#C8A870" stroke-width="1" opacity=".4" class="pulse" data-a="fade" style="--d:1.16s"/>
+    </svg>
+  </div>
+  <div class="pad"><div class="stack">
+    <div class="kicker" data-a="left" style="margin-top:24px">Final thought</div>
+    <p class="quote" data-a="blur" style="--d:0.14s; margin-top:44px">&ldquo;Don't work only for money.<br>Learn how to make your money <span class="em">work for you</span>.&rdquo;</p>
+    <div class="rule accent" data-a="wipe" style="--d:0.52s; margin:52px 0 38px; width:900px"></div>
+    <p class="lede wide" data-a="rise" style="--d:0.58s">The journey to wealth doesn't begin when you become rich.<br>It begins with the <strong>first smart decision you make today.</strong></p>
+  </div></div>
+</section>
+
+</div><!-- /deck-stage -->
+</div><!-- /deck-viewport -->
+
+<!-- ===========================================
+     DECK CHROME
+     =========================================== -->
+<div class="chrome">
+  <div class="act" id="actLabel"></div>
+  <div class="count"><b id="cur">1</b> / <span id="tot">28</span></div>
+  <div class="railwrap"><div class="rail" id="rail"></div></div>
+</div>
+
+<script>
+/* ===========================================
+   1. FIXED-STAGE SCALER
+   The 1920x1080 canvas is scaled as a whole and centred.
+   Content never reflows for the device.
+   =========================================== */
+(function(){
+  var stage = document.getElementById('stage');
+  function fit(){
+    var w = window.innerWidth, h = window.innerHeight;
+    var s = Math.min(w/1920, h/1080);
+    var x = (w - 1920*s)/2, y = (h - 1080*s)/2;
+    stage.style.transform = 'translate('+x+'px,'+y+'px) scale('+s+')';
+  }
+  window.addEventListener('resize', fit, {passive:true});
+  window.addEventListener('orientationchange', fit);
+  fit();
+})();
+
+/* ===========================================
+   2. GENERATED GEOMETRY
+   A few figures need many repeated marks; building them
+   here keeps the markup readable and the file small.
+   =========================================== */
+(function(){
+  var NS = 'http://www.w3.org/2000/svg';
+  function el(n, a){ var e = document.createElementNS(NS, n); for (var k in a) e.setAttribute(k, a[k]); return e; }
+
+  /* slide 9 — 120 decision ticks along a decade */
+  var t = document.getElementById('ticks9');
+  if (t) for (var i = 0; i < 120; i++){
+    var x = i * 13.7, prog = i / 119, lit = (i % 17 === 3);
+    /* each decision is the same act; its effect compounds across the decade */
+    var len = 12 + Math.pow(prog, 1.5) * 74;
+    if (lit) len *= 1.45;
+    t.appendChild(el('path', {
+      d: 'M' + x + ' ' + (140 - len) + 'V140',
+      stroke: lit ? '#C8A870' : 'rgba(226,220,208,.22)',
+      'stroke-width': lit ? 3 : 1.5
+    }));
+  }
+
+  /* slide 25 — a field of small decisions resolving into a direction */
+  var f = document.getElementById('field25');
+  if (f) for (var j = 0; j < 260; j++){
+    var px = j * 6.3, prog = j / 260;
+    var py = 196 - Math.pow(prog, 1.7) * 168 + (Math.sin(j * 2.7) * 9);
+    f.appendChild(el('rect', {
+      x: px, y: py, width: 2, height: 2,
+      fill: prog > 0.72 ? '#C8A870' : 'rgba(226,220,208,.34)'
+    }));
+  }
+
+  /* slide 28 — radial sunrise burst from the horizon */
+  var b = document.getElementById('burst28');
+  if (b) for (var k = 0; k <= 46; k++){
+    var ang = Math.PI * (k / 46);
+    var len = 186 + Math.sin(k * 1.3) * 34;
+    b.appendChild(el('path', {
+      class: 'draw', pathLength: 1,
+      d: 'M960 230L' + (960 - Math.cos(ang) * len * 3.4) + ' ' + (230 - Math.sin(ang) * len),
+      'stroke-width': (k % 6 === 0) ? 1.6 : 0.8,
+      opacity: (k % 6 === 0) ? 0.5 : 0.2,
+      style: '--d:' + (0.28 + k * 0.016) + 's'
+    }));
+  }
+})();
+
+/* ===========================================
+   3. NAVIGATION
+   Slide switching uses .active only (never display),
+   so each slide replays its entrance choreography.
+   =========================================== */
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var rail = document.getElementById('rail');
+  var cur  = document.getElementById('cur');
+  var act  = document.getElementById('actLabel');
+  document.getElementById('tot').textContent = slides.length;
+  var i = 0, busy = false;
+
+  function show(n){
+    n = Math.max(0, Math.min(slides.length - 1, n));
+    if (n === i && slides[i].classList.contains('active')) return;
+    slides.forEach(function(s){ s.classList.remove('active'); });
+    i = n;
+    /* force a reflow so re-entering a slide restarts its animations */
+    void slides[i].offsetWidth;
+    slides[i].classList.add('active');
+    rail.style.height = ((i + 1) / slides.length * 100) + '%';
+    cur.textContent = i + 1;
+    act.textContent = slides[i].getAttribute('data-act') || '';
+    if (history.replaceState) history.replaceState(null, '', '#' + (i + 1));
+  }
+  function next(){ show(i + 1); }
+  function prev(){ show(i - 1); }
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') show(0);
+    else if (e.key === 'End')  show(slides.length - 1);
+    else if (e.key === 'f' || e.key === 'F') {
+      if (!document.fullscreenElement) { if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen(); }
+      else if (document.exitFullscreen) document.exitFullscreen();
+    }
+  });
+
+  /* click / tap: right half advances, left half goes back */
+  document.addEventListener('click', function(e){
+    if (busy) return;
+    (e.clientX > window.innerWidth * 0.32) ? next() : prev();
+  });
+
+  /* swipe, tracked 1:1 in intent — direction decided by the dominant axis */
+  var sx = 0, sy = 0;
+  document.addEventListener('touchstart', function(e){
+    sx = e.changedTouches[0].clientX; sy = e.changedTouches[0].clientY;
+  }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) > 46 && Math.abs(dx) > Math.abs(dy)) { (dx < 0) ? next() : prev(); }
+  }, {passive:true});
+
+  var start = parseInt((location.hash || '#1').slice(1), 10);
+  show(isNaN(start) ? 0 : start - 1);
+})();
+</script>
+</body>
+</html>
